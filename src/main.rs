@@ -1,11 +1,11 @@
-use std::{io, path::PathBuf};
+use std::{io, os::unix::fs::PermissionsExt, path::PathBuf};
 
 use anyhow::Context;
 use clap::Parser;
 use futures::future::try_join_all;
 use serde::Deserialize;
 use tokio::{
-    fs,
+    fs::{self, set_permissions},
     io::{AsyncSeekExt, AsyncWriteExt},
     time::{sleep, Instant},
 };
@@ -32,6 +32,15 @@ async fn run(opts: &Opts) -> anyhow::Result<()> {
         .with_context(|| "read config file")?;
     let config: Config = toml::from_str(&config).with_context(|| "parse config file")?;
 
+    if let Some(parent) = config.authorized_keys_file.parent() {
+        fs::create_dir_all(parent)
+            .await
+            .with_context(|| "create ssh dir")?;
+        set_permissions(parent, PermissionsExt::from_mode(0o700))
+            .await
+            .with_context(|| "set mode")?;
+    }
+
     let mut authorized_keys = fs::File::options()
         .append(false)
         .create(true)
@@ -40,6 +49,12 @@ async fn run(opts: &Opts) -> anyhow::Result<()> {
         .open(&config.authorized_keys_file)
         .await
         .with_context(|| "open authorized keys")?;
+    set_permissions(
+        &config.authorized_keys_file,
+        PermissionsExt::from_mode(0o600),
+    )
+    .await
+    .with_context(|| "set mode")?;
     loop {
         let instant = Instant::now();
 
