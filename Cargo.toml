@@ -1,0 +1,18 @@
+[package]
+name = "ssh-key-sync"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { version = "1.0.89", features = ["backtrace"] }
+clap = { version = "4.5.19", features = ["derive", "env"] }
+futures = { version = "0.3.31", default-features = false }
+futures-util = "0.3.31"
+humantime-serde = "1.1.1"
+reqwest = { version = "0.12.8", default-features = false, features = ["rustls-tls-webpki-roots"] }
+serde = { version = "1.0.210", features = ["derive"] }
+tokio = { version = "1.40.0", features = ["fs", "macros", "rt-multi-thread"] }
+toml = "0.8.19"
+tracing = { version = "0.1.40", features = ["valuable"] }
+tracing-subscriber = { version = "0.3.18", features = ["valuable", "env-filter"] }
+valuable = { version = "0.1.0", features = ["derive"] }

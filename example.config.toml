@@ -1,0 +1,3 @@
+authorized_keys_file = "authorized_keys"
+github_users = ["namachan10777"]
+sync_duration = "10s"
